@@ -1,14 +1,22 @@
 # Game Of Life
 
+'''Imports'''
+
+# For random distribution of cells
+import random
+
 '''Classes'''
 
+# Defines the cell class
 class cell(object):
+    # Initialization function
     def __init__(self, xPos, yPos, isAlive, willLive=False):
         self.xPosInt = xPos
         self.yPosInt = yPos
         self.isAliveBool = isAlive
         self.willLiveBool = willLive
-        
+    
+    # Checks if cell state will change with next step    
     def checkNextStep(self):
         if self.isAliveBool == True:
             if getAdjacentCells(self) < 2 or getAdjacentCells(self) > 3:
@@ -17,6 +25,7 @@ class cell(object):
             if getAdjacentCells(self) == 3:
                 self.willLiveBool = True
 
+    # Changes the cell state
     def doNextStep(self):
         self.isAliveBool = self.willLiveBool
 
@@ -24,15 +33,21 @@ class cell(object):
 '''Functions'''
 
 # Prints the grid to the screen
-def printTheGrid(cellList):
-    for cell in cellList:
+def printTheGrid(grid):
+    gridString = ""
+    currentRow = 0
+    for cell in grid:
+        if cell.yPosInt != currentRow:
+            gridString += "\n"
+            currentRow += 1
         if cell.isAliveBool == True:
-            print "*"
+            gridString += "*"
         else:
-            print "-"
+            gridString += "-"
+    print gridString
 
 # Calculates the number of adjacent living cells for a given cell
-def getAdjacentCells():
+def getAdjacentCells(cell):
     pass
 
 # Places the given number of cells randomly on the board
@@ -40,18 +55,22 @@ def randomlyPlaceLivingCells():
     pass
 
 # Advances the board by one step
-def nextStep():
-    pass
+def nextStep(grid):
+    for cell in grid:
+        cell.checkNextStep
+    for cell in grid:
+        cell.doNextStep
+    printTheGrid(grid)
 
 # Checks if the grid is empty
-def isEmptyGrid(cellList):
-    n = False
-    for cell in cellList:
-        if cell.isAliveBool() == True:
-            n = True
-    return n
+def isEmptyGrid(grid):
+    isEmpty = True
+    for cell in grid:
+        if cell.isAliveBool == True:
+            isEmpty = False
+    return isEmpty
 
 '''Main Program'''
 
-grid = [cell(0, 0, True), cell(0, 1, False), cell(1, 0, False), cell(1, 1, False)]
-printTheGrid(grid)
+myGrid = [cell(0, 0, True), cell(1, 0, False), cell(0, 1, False), cell(1, 1, False)]
+printTheGrid(myGrid)
