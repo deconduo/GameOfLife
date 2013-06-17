@@ -3,7 +3,7 @@
 '''Imports'''
 
 # For random distribution of cells
-import random
+from random import choice
 
 '''Classes'''
 
@@ -33,6 +33,26 @@ class cell(object):
 
 '''Functions'''
 
+# Sets up a blank grid
+def setUpGrid(n, m, grid):
+    i = 0
+    j = 0
+    while j < m :
+        while i < n:
+            grid.append(cell(i, j, False))
+            i += 1
+        i = 0
+        j += 1    
+
+# Places the given number of cells randomly on the board
+def randomlyPlaceLivingCells(n, grid):
+    i = 0
+    while i < n:
+        x = choice(grid)
+        if x.isAliveBool == False:
+            x.isAliveBool = True
+            i += 1
+
 # Prints the grid to the screen
 def printTheGrid(grid):
     gridString = ""
@@ -51,15 +71,13 @@ def printTheGrid(grid):
 def getAdjacentCells(cell, grid):
     i = 0
     for otherCells in grid:
-        if (otherCells.xPosInt == (cell.xPosInt + 1 | cell.xPosInt | cell.xPosInt - 1)) & (otherCells.yPosInt == (cell.yPosInt + 1 | cell.yPosInt | cell.yPosInt - 1)):
+        if ((otherCells.xPosInt == cell.xPosInt) or (otherCells.xPosInt == cell.xPosInt + 1) or (otherCells.xPosInt == cell.xPosInt -1)) and ((otherCells.yPosInt == cell.yPosInt) or (otherCells.yPosInt == cell.yPosInt + 1) or (otherCells.yPosInt == cell.yPosInt -1)) and (otherCells.isAliveBool == True):
             i += 1
-    return i
+    if cell.isAliveBool == True:
+        return (i-1)
+    else:
+        return i
         
-
-# Places the given number of cells randomly on the board
-def randomlyPlaceLivingCells():
-    pass
-
 # Advances the board by one step
 def nextStep(grid):
     for cell in grid:
@@ -78,6 +96,9 @@ def isEmptyGrid(grid):
 
 '''Main Program'''
 
-myGrid = [cell(0, 0, True), cell(1, 0, False), cell(0, 1, False), cell(1, 1, False)]
+myGrid = []
+setUpGrid(10, 10, myGrid)
+randomlyPlaceLivingCells(20, myGrid)
 printTheGrid(myGrid)
+print "\n"
 nextStep(myGrid)
