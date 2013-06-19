@@ -19,16 +19,20 @@ class cell(object):
     # Checks if cell state will change with next step    
     def checkNextStep(self, grid):
         i = getAdjacentCells(self, grid)
+        print i
         if self.isAliveBool == True:
             if (i < 2) or (i > 3):
                 self.willLiveBool = False
+                print "Cell Dying"
         if self.isAliveBool == False:
             if i == 3:
                 self.willLiveBool = True
+                print "Cell Living"
 
     # Changes the cell state
     def doNextStep(self):
         self.isAliveBool = self.willLiveBool
+        self.willLiveBool = False
 
 
 '''Functions'''
@@ -98,7 +102,12 @@ def isEmptyGrid(grid):
 
 myGrid = []
 setUpGrid(10, 10, myGrid)
-randomlyPlaceLivingCells(20, myGrid)
+randomlyPlaceLivingCells(50, myGrid)
 printTheGrid(myGrid)
 print "\n"
 nextStep(myGrid)
+print "\n"
+nextStep(myGrid)
+print "\n"
+nextStep(myGrid)
+
