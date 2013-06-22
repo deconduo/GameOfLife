@@ -4,6 +4,57 @@
 
 # For random distribution of cells
 from random import choice
+from Tkinter import *
+
+''''TKinter'''
+
+class gameWindow(Frame):
+  
+    def __init__(self, parent):
+        Frame.__init__(self, parent, background="white")   
+        self.parent = parent
+        self.initUI()
+    
+    def initUI(self):
+        self.parent.title("Conway's Game Of Life")
+        
+        self.pack(fill=BOTH, expand=1)
+
+        
+        # Menu
+        gameMenu = Menu(self.parent)
+        self.parent.config(menu=gameMenu)        
+        fileMenu = Menu(gameMenu)
+        fileMenu.add_command(label="Save State", command=self.onExit)
+        fileMenu.add_command(label="Load State", command=self.onExit)
+        fileMenu.add_command(label="Exit", command=self.onExit)
+        gameMenu.add_cascade(label="File", menu=fileMenu)
+        
+        # Game sliders
+        gridWidth = Scale(self, label="Set grid width", orient="horizontal", from_=0, to=100, command=self.setGridWidth)
+        gridWidth.grid(row=1)
+        gridLength = Scale(self, label="Set grid length", orient="horizontal", from_=0, to=100, command=self.setGridLength)
+        gridLength.grid(row=2)
+        numOfCells = Scale(self, label="Set number of starting cells", orient="horizontal", from_=0, to=100, command=self.setNumOfCells)
+        numOfCells.grid(row=3)
+        
+        # Game grid
+        gameCanvas = Canvas(self)
+        gameCanvas.grid(row=1, column=2, rowspan=3, columnspan=10)
+
+
+    def setGridWidth(self, val):
+        v = int(float(val))
+        
+    def setGridLength(self, val):
+        v = int(float(val))
+        
+    def setNumOfCells(self, val):
+        v = int(float(val))
+
+
+    def onExit(self):
+        self.quit()
 
 '''Classes'''
 
@@ -19,15 +70,12 @@ class cell(object):
     # Checks if cell state will change with next step    
     def checkNextStep(self, grid):
         i = getAdjacentCells(self, grid)
-        print i
         if self.isAliveBool == True:
             if (i < 2) or (i > 3):
                 self.willLiveBool = False
-                print "Cell Dying"
         if self.isAliveBool == False:
             if i == 3:
                 self.willLiveBool = True
-                print "Cell Living"
 
     # Changes the cell state
     def doNextStep(self):
@@ -100,14 +148,19 @@ def isEmptyGrid(grid):
 
 '''Main Program'''
 
-myGrid = []
-setUpGrid(10, 10, myGrid)
-randomlyPlaceLivingCells(50, myGrid)
-printTheGrid(myGrid)
-print "\n"
-nextStep(myGrid)
-print "\n"
-nextStep(myGrid)
-print "\n"
-nextStep(myGrid)
+def main(numOfCells=100, gridLength=20, gridWidth=20):
+    root = Tk()
+    root.geometry("250x150+300+300")
+    app = gameWindow(root)
+    root.mainloop()
 
+    
+    myGrid = []
+    setUpGrid(gridLength, gridWidth, myGrid)
+    randomlyPlaceLivingCells(numOfCells, myGrid)
+    printTheGrid(myGrid)
+    print "\n"
+    nextStep(myGrid)
+    
+if __name__ == "__main__":
+    main()
