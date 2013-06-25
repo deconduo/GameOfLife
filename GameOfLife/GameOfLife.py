@@ -52,18 +52,19 @@ class gameWindow(Frame):
         setupButton.grid(row=4, column=4)
         
         # Game grid
-        gameCanvas = Canvas(self)
-        gameCanvas.grid(row=1, column=3, rowspan=3, columnspan=10)
-
+        self.gameCanvas = Canvas(self)
+        self.gameCanvas.grid(row=1, column=3, rowspan=3, columnspan=10)
+        
     def setGridWidth(self, val):
         gridWidth = int(float(val))
-        
+
     def setGridLength(self, val):
         gridLength = int(float(val))
-        
+       
     def setNumOfCells(self, val):
         numOfCells = int(float(val))
 
+       
         # Sets up a blank grid
     def setUpGrid(self, n, m, numCell, grid):
         i = 0
@@ -76,6 +77,7 @@ class gameWindow(Frame):
                 j += 1
                 self.randomlyPlaceLivingCells(numCell, grid)
                 self.printTheGrid(grid)
+        print "Set Up"
 
     # Places the given number of cells randomly on the board
     def randomlyPlaceLivingCells(self, n, grid):
@@ -88,13 +90,13 @@ class gameWindow(Frame):
     
     # Prints the grid to the screen
     def printTheGrid(self, grid):
-        currentRow = 0
         for cell in grid:
             if cell.isAliveBool == True:
-                gameCanvas.create_polygon((5*cell.xPosInt), (5*cell.yPosInt), (5*cell.xPosInt), (5*cell.yPosInt +5) ,(5*cell.xPosInt +5), (5*cell.yPosInt), (5*cell.xPosInt +5), (5*cell.yPosInt +5), fill="white")
+                self.gameCanvas.create_polygon((5*cell.xPosInt), (5*cell.yPosInt), (5*cell.xPosInt), (5*cell.yPosInt +5) ,(5*cell.xPosInt +5), (5*cell.yPosInt), (5*cell.xPosInt +5), (5*cell.yPosInt +5), fill="blue")
             else:
-                gameCanvas.create_polygon((5*cell.xPosInt), (5*cell.yPosInt), (5*cell.xPosInt), (5*cell.yPosInt +5) ,(5*cell.xPosInt +5), (5*cell.yPosInt), (5*cell.xPosInt +5), (5*cell.yPosInt +5), fill="red")
-    
+                self.gameCanvas.create_polygon((5*cell.xPosInt), (5*cell.yPosInt), (5*cell.xPosInt), (5*cell.yPosInt +5) ,(5*cell.xPosInt +5), (5*cell.yPosInt), (5*cell.xPosInt +5), (5*cell.yPosInt +5), fill="red")
+        
+        print "Printed"
     # Calculates the number of adjacent living cells for a given cell
     def getAdjacentCells(self, cell, grid):
         i = 0
