@@ -20,6 +20,7 @@ class gameWindow(Frame):
         
         self.pack(fill=BOTH, expand=1)
 
+
         # Menu
         gameMenu = Menu(self.parent)
         self.parent.config(menu=gameMenu)        
