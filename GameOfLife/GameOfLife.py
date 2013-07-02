@@ -8,7 +8,7 @@ from Tkinter import *
 
 ''''TKinter'''
 
-class gameWindow(Frame):
+class GameWindow(Frame):
   
     def __init__(self, parent):
         Frame.__init__(self, parent, background="white")   
@@ -31,35 +31,119 @@ class gameWindow(Frame):
         gameMenu.add_cascade(label="File", menu=fileMenu)
         
         # Game sliders
-        gridWidth = Scale(self, label="Set grid width", orient="horizontal", from_=0, to=100, command=self.setGridWidth)
-        gridWidth.grid(row=1)
-        gridLength = Scale(self, label="Set grid length", orient="horizontal", from_=0, to=100, command=self.setGridLength)
-        gridLength.grid(row=2)
-        numOfCells = Scale(self, label="Set number of starting cells", orient="horizontal", from_=0, to=100, command=self.setNumOfCells)
-        numOfCells.grid(row=3)
+        gridWidthScale = Scale(self, label="Grid width", orient="horizontal", from_=5, to=40, command=self.setGridWidth)
+        gridWidthScale.grid(row=0)
+        gridLengthScale = Scale(self, label="Grid length", orient="horizontal", from_=5, to=40, command=self.setGridLength)
+        gridLengthScale.grid(row=1)
+        numOfCellsScale = Scale(self, label="Starting cells", orient="horizontal", from_=10, to=200, command=self.setNumOfCells)
+        numOfCellsScale.grid(row=2)
+        
+        #Game buttons
+        placeCellsButton = Button(self, text = "New Grid", command = self.randomlyPlaceCells)
+        placeCellsButton.grid(row=3)
+        nextStepButton = Button(self, text = "Next Step", command = self.nextStep)
+        nextStepButton.grid(row=3, column=1)
+        stillLifeButton = Button(self, text = "Still Life", command = self.stillLife)
+        stillLifeButton.grid(row=3, column=2)
+
         
         # Game grid
-        gameCanvas = Canvas(self)
-        gameCanvas.grid(row=1, column=2, rowspan=3, columnspan=10)
-
+        self.gameCanvas = Canvas(self)
+        self.gameCanvas.grid(row=0, column=1, rowspan=3, columnspan=2)
 
     def setGridWidth(self, val):
-        v = int(float(val))
-        
+        self.gridWidth = int(float(val))
+
     def setGridLength(self, val):
-        v = int(float(val))
+        self.gridLength = int(float(val))
         
     def setNumOfCells(self, val):
-        v = int(float(val))
-
+        self.numOfCells = int(float(val))
+    
+    # Sets up grid and randomly places a given number of cells.
+    
+    def randomlyPlaceCells(self):
+        # Check to see if too many cells are selected
+        if self.numOfCells > (self.gridWidth * self.gridLength):
+            self.numOfCells = (self.gridWidth * self.gridLength)
+        # Set up empty grid
+        self.grid = []
+        # Set blank variables
+        column = []
+        i = 0
+        j = 0
+        # Fill grid with appropriate number of (dead) cells
+        while i < self.gridWidth:
+            while j < self.gridLength:
+                cell = Cell(i, j)
+                column.append(cell)
+                j += 1
+            self.grid.append(column)
+            j = 0
+            i += 1
+        
+        # Flip the given number of dead cells to life
+        # Random cells are picked using the choice function
+        n = 0
+        while n < self.numOfCells:
+            x = choice(self.grid)
+            y = choice(x)
+            if y.isAliveBool == False:
+                y.isAliveBool = True
+                y.willLoveBool = True
+                n += 1
+                
+        # Change canvas size to fit grid and draw cells.
+        self.gameCanvas.config(width = (5 * self.gridWidth ), height = (5 * self.gridLength))
+        
+        # Print the grid to the canvs
+        self.printGrid()
+    
+    # Prints the grid to the canvas
+    def printGrid(self):
+        # Clear the canvas first
+        self.gameCanvas.delete(ALL)
+        # Draw a circle for each living cell
+        for column in self.grid:
+            for cell in column:
+                if cell.isAliveBool == True:
+                    self.gameCanvas.create_oval((5 * cell.xPosInt), (5 * cell.yPosInt), ((5 * cell.xPosInt) + 5), ((5 * cell.yPosInt) + 5), fill="red")
+    
+    # Advances grid by one step
+    def nextStep(self):
+        print "Next"
+        # First, each cell checks its next step
+        breakBool = False
+        while breakBool == False:
+            for column in self.grid:
+                for cell in column:
+                    cell.checkNextStep(self.grid)
+                    print "Check",cell.xPosInt,cell.yPosInt,self.gridWidth,self.gridLength,breakBool
+                    if (cell.xPosInt == (self.gridWidth -1)) and (cell.yPosInt == (self.gridLength -1)):
+                        breakBool = True
+        # Then each cell changes its state accordingly
+        breakBool = False
+        while breakBool == False:
+            for column in self.grid:
+                for cell in column:
+                    cell.doNextStep()
+                    print "Do"
+                    if cell.xPosInt == (self.gridWidth -1) and cell.yPosInt == (self.gridLength -1):
+                        breakBool = True
+        # Finally the new canvas is drawn
+        self.printGrid()
+    
+    def stillLife(self):
+        pass
 
     def onExit(self):
         self.quit()
 
-'''Classes'''
 
+
+'''Classes'''
 # Defines the cell class
-class cell(object):
+class Cell(object):
     # Initialization function
     def __init__(self, xPos, yPos, isAlive=False, willLive=False):
         self.xPosInt = xPos
@@ -69,23 +153,34 @@ class cell(object):
     
     # Checks if cell state will change with next step    
     def checkNextStep(self, grid):
-        i = getAdjacentCells(self, grid)
+        # First it checks for the number of adjacent living cells
+        nearbyCells = self.getAdjacentCells(grid)
+        # If cell is alive, check if it dies
         if self.isAliveBool == True:
-            if (i < 2) or (i > 3):
+            if (nearbyCells < 2) or (nearbyCells > 3):
                 self.willLiveBool = False
+        # If cell is dead, check if it lives
         if self.isAliveBool == False:
-            if i == 3:
+            if nearbyCells == 3:
                 self.willLiveBool = True
 
+    def getAdjacentCells(self, grid):
+        i = 0
+        for column in grid:
+            for otherCells in column:
+                if ((otherCells.xPosInt == self.xPosInt) or (otherCells.xPosInt == self.xPosInt + 1) or (otherCells.xPosInt == self.xPosInt -1)) and ((otherCells.yPosInt == self.yPosInt) or (otherCells.yPosInt == self.yPosInt + 1) or (otherCells.yPosInt == self.yPosInt -1)) and (otherCells.isAliveBool == True):
+                    i += 1
+            if self.isAliveBool == True:
+                return (i-1)
+            else:
+                return i
     # Changes the cell state
     def doNextStep(self):
         self.isAliveBool = self.willLiveBool
-        self.willLiveBool = False
-
 
 '''Functions'''
-
-# Sets up a blank grid
+'''
+    # Sets up a blank grid
 def setUpGrid(n, m, grid):
     i = 0
     j = 0
@@ -103,6 +198,7 @@ def randomlyPlaceLivingCells(n, grid):
         x = choice(grid)
         if x.isAliveBool == False:
             x.isAliveBool = True
+            x.willLoveBool = True
             i += 1
 
 # Prints the grid to the screen
@@ -145,22 +241,21 @@ def isEmptyGrid(grid):
         if cell.isAliveBool == True:
             isEmpty = False
     return isEmpty
-
+'''
 '''Main Program'''
-
-def main(numOfCells=100, gridLength=20, gridWidth=20):
+#numOfCells=100, gridLength=20, gridWidth=20
+def main():
     root = Tk()
-    root.geometry("250x150+300+300")
-    app = gameWindow(root)
+    root.geometry("800x600+300+300")
+    app = GameWindow(root)
     root.mainloop()
-
-    
+    '''  
     myGrid = []
     setUpGrid(gridLength, gridWidth, myGrid)
     randomlyPlaceLivingCells(numOfCells, myGrid)
     printTheGrid(myGrid)
     print "\n"
-    nextStep(myGrid)
+    nextStep(myGrid)'''
     
 if __name__ == "__main__":
     main()
