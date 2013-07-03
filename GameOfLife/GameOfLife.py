@@ -59,10 +59,9 @@ class GameWindow(Frame):
     def setNumOfCells(self, val):
         self.numOfCells = int(float(val))
     
-    # Sets up grid and randomly places a given number of cells.
-    
-    def randomlyPlaceCells(self):
-        # Check to see if too many cells are selected on the slider
+    # Sets up a blank grid
+    def setUpGrid(self):
+    # Check to see if too many cells are selected on the slider
         if self.numOfCells > (self.gridWidth * self.gridLength):
             self.numOfCells = (self.gridWidth * self.gridLength)
         # Set up empty grid
@@ -81,7 +80,11 @@ class GameWindow(Frame):
             column = []
             j = 0
             i += 1
-        
+            
+    # Sets up a grid and randomly places a given number of cells.
+    def randomlyPlaceCells(self):
+        # First set up a blank grid
+        self.setUpGrid()        
         # Flip the given number of dead cells to life
         # Random cells are picked using the choice function
         n = 0
@@ -124,13 +127,14 @@ class GameWindow(Frame):
     
     # Should only be done with small grid size!
     def stillLife(self):
-        pass
+        # First set up a blank grid
+        self.setUpGrid()
+        for x in combinations(self.grid, self.numOfCells):
+            print x
 
     # Exit command
     def onExit(self):
         self.quit()
-
-
 
 '''Classes'''
 # Defines the cell class
@@ -141,6 +145,12 @@ class Cell(object):
         self.yPosInt = yPos
         self.isAliveBool = isAlive
         self.willLiveBool = willLive
+    
+    def __str__(self):
+        if self.isAliveBool == True:
+            return "*"
+        else:
+            return "-"
     
     # Checks if cell state will change with next step    
     def checkNextStep(self, grid):
@@ -174,6 +184,28 @@ class Cell(object):
     def doNextStep(self):
         self.isAliveBool = self.willLiveBool
 
+'''Functions'''
+
+# from python.org, http://docs.python.org/library/itertools.html
+# the equivalent for itertools.combinations in a version of Python
+# less than 2.6
+def combinations(iterable, r):
+    pool = tuple(iterable)
+    n = len(pool)
+    if r > n:
+        return
+    indices = range(r)
+    yield tuple(pool[i] for i in indices)
+    while True:
+        for i in reversed(range(r)):
+            if indices[i] != i + n - r:
+                break
+            else:
+                return
+        indices[i] += 1
+        for j in range(i+1, r):
+            indices[j] = indices[j-1] + 1
+        yield tuple(pool[i] for i in indices)
 '''Main Program'''
 
 def main():
