@@ -36,14 +36,16 @@ class GameWindow(Frame):
         gridLengthScale.grid(row=1)
         numOfCellsScale = Scale(self, label="Starting cells", orient="horizontal", from_=1, to=400, command=self.setNumOfCells)
         numOfCellsScale.grid(row=2)
+        gridWidthScale = Scale(self, label="Steps to advance", orient="horizontal", from_=1, to=40, command=self.setStepNumber)
+        gridWidthScale.grid(row=3)
         
         # Game buttons
         placeCellsButton = Button(self, text = "New Grid", command = self.randomlyPlaceCells)
-        placeCellsButton.grid(row=3)
-        nextStepButton = Button(self, text = "Next Step", command = self.nextStep)
-        nextStepButton.grid(row=3, column=1)
+        placeCellsButton.grid(row=4)
+        nextStepButton = Button(self, text = "Advance Steps", command = self.advanceSteps)
+        nextStepButton.grid(row=4, column=1)
         stillLifeButton = Button(self, text = "Still Life", command = self.stillLife)
-        stillLifeButton.grid(row=3, column=2)
+        stillLifeButton.grid(row=4, column=2)
 
         # Game grid
         self.gameCanvas = Canvas(self)
@@ -58,6 +60,9 @@ class GameWindow(Frame):
         
     def setNumOfCells(self, val):
         self.numOfCells = int(float(val))
+        
+    def setStepNumber(self, val):
+        self.stepNumber = int(float(val))
     
     # Sets up a blank grid
     def setUpGrid(self):
@@ -112,25 +117,24 @@ class GameWindow(Frame):
                 if cell.isAliveBool == True:
                     self.gameCanvas.create_oval(((10 * cell.xPosInt)+5), ((10 * cell.yPosInt)+5), ((10 * cell.xPosInt) + 15), ((10 * cell.yPosInt) + 15), fill="red")
     
-    # Advances grid by one step
-    def nextStep(self):
-        # First, each cell checks its next step
-        for column in self.grid:
-            for cell in column:
-                cell.checkNextStep(self.grid)
-        # Then each cell changes its state accordingly
-        for column in self.grid:
-            for cell in column:
-                cell.doNextStep()
-        # Finally the new canvas is drawn
+    # Advances the grid by the given number of steps
+    def advanceSteps(self):
+        # Loops the nextStep function for the given number of steps.
+        i = 0
+        while i < self.stepNumber:
+            nextStep(self.grid)
+            i += 1
+        # Draws the new canvas
         self.printGrid()
     
     # Should only be done with small grid size!
+    # Not currently working
     def stillLife(self):
         # First set up a blank grid
         self.setUpGrid()
-        for x in combinations(self.grid, self.numOfCells):
-            print x
+        for stillLifeGrid in combinations(self.grid, self.numOfCells):
+            if nextStep(stillLifeGrid) == stillLifeGrid:
+                print stillLifeGrid
 
     # Exit command
     def onExit(self):
@@ -185,6 +189,17 @@ class Cell(object):
         self.isAliveBool = self.willLiveBool
 
 '''Functions'''
+
+# Advances a grid by one step
+def nextStep(grid):
+    # First, each cell checks its next step
+    for column in grid:
+        for cell in column:
+            cell.checkNextStep(grid)
+    # Then each cell changes its state accordingly
+    for column in grid:
+        for cell in column:
+            cell.doNextStep()
 
 # from python.org, http://docs.python.org/library/itertools.html
 # the equivalent for itertools.combinations in a version of Python
